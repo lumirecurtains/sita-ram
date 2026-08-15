@@ -1,0 +1,23 @@
+{
+  "name": "sitaram-os-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sita Ram Restaurant Operating System - Monorepo Root",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\"",
+    "format:write": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "eslint": "^9.20.0",
+    "prettier": "^3.5.0",
+    "typescript": "^5.7.0"
+  }
+}
