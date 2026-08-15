@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.*
+
+# testing
+coverage/
+
+# build outputs
+dist/
+build/
+/.next/
+/out/
+*.tsbuildinfo
+
+# environment & secrets
+.env
+.env.*
+!.env.example
+
+# debug & logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# system & OS
+.DS_Store
+Thumbs.db
