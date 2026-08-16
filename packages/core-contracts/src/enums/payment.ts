@@ -1,0 +1,30 @@
+/**
+ * Canonical Payment Primitives & Capabilities (DOM-17)
+ * Strictly derived from Step 6D Section 21 & Step 6D.5.
+ */
+
+export enum PaymentCapability {
+  COLLECTION = 'COLLECTION',
+  VERIFICATION = 'VERIFICATION',
+  REFUND = 'REFUND',
+  ROUTE_SPLIT = 'ROUTE_SPLIT',
+  SETTLEMENT = 'SETTLEMENT',
+  RECONCILIATION = 'RECONCILIATION',
+}
+
+export enum PaymentMode {
+  ONLINE_GATEWAY = 'ONLINE_GATEWAY',
+  CASH_ON_DELIVERY = 'CASH_ON_DELIVERY',
+  CASH_POS = 'CASH_POS',
+  STATIC_QR = 'STATIC_QR',
+  EDC_POS_TERMINAL = 'EDC_POS_TERMINAL',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  AUTHORIZED = 'AUTHORIZED',
+  CAPTURED = 'CAPTURED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+}
