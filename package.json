@@ -13,9 +13,15 @@
     "lint": "eslint .",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\"",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:rules": "vitest run tests/security",
+    "emulators:ports": "node ./tools/emulators/check-ports.mjs",
+    "emulators:start": "firebase emulators:start --project=demo-sitaram-local",
+    "emulators:start:persist": "firebase emulators:start --project=demo-sitaram-local --import=./tools/emulators/data --export-on-exit=./tools/emulators/data",
+    "emulators:export": "firebase emulators:export ./tools/emulators/data --project=demo-sitaram-local"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@types/node": "^20.17.0",
     "eslint": "^9.20.0",
     "prettier": "^3.5.0",

@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-sitaram-local",
+    "local": "demo-sitaram-local"
+  }
+}

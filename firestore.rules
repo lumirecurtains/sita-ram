@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // SITA RAM OPERATING SYSTEM — ZERO-TRUST MULTI-TENANT SECURITY RULES (STEP 6E)
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Helper Functions: Authentication & Tenant Scoping
+    // -------------------------------------------------------------------------
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isPlatformAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'PlatformAdmin';
+    }
+
+    function isTenantMember(orgId) {
+      return isAuthenticated() && (
+        isPlatformAdmin() ||
+        (request.auth.token.orgId == orgId)
+      );
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
+
+    function hasAnyRole(roles) {
+      return isAuthenticated() && request.auth.token.role in roles;
+    }
+
+    function isOrgOwner(orgId) {
+      return isTenantMember(orgId) && hasRole('OrgOwner');
+    }
+
+    function isStaffMember(orgId) {
+      return isTenantMember(orgId) && hasAnyRole([
+        'OrgOwner',
+        'BrandAdmin',
+        'OutletManager',
+        'Cashier',
+        'Captain',
+        'KitchenStaff',
+        'Rider',
+        'Accountant'
+      ]);
+    }
+
+    function isOutletStaff(orgId, outletId) {
+      return isStaffMember(orgId) && (
+        isOrgOwner(orgId) ||
+        hasRole('BrandAdmin') ||
+        (request.auth.token.outletId == outletId)
+      );
+    }
+
+    function isCustomerOwner(customerId) {
+      return isAuthenticated() && request.auth.uid == customerId;
+    }
+
+    // -------------------------------------------------------------------------
+    // Default Deny Posture (Rule 8: Security First)
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Organizations Collection (DOM-02)
+    // -------------------------------------------------------------------------
+    match /organizations/{orgId} {
+      allow read: if isTenantMember(orgId);
+      allow create: if isPlatformAdmin();
+      allow update, delete: if isPlatformAdmin() || isOrgOwner(orgId);
+    }
+
+    // -------------------------------------------------------------------------
+    // Brands Collection (DOM-03)
+    // -------------------------------------------------------------------------
+    match /brands/{brandId} {
+      allow read: if isAuthenticated() && isTenantMember(resource.data.orgId);
+      allow create: if isAuthenticated() && isTenantMember(request.resource.data.orgId) && (isOrgOwner(request.resource.data.orgId) || isPlatformAdmin());
+      allow update, delete: if isAuthenticated() && isTenantMember(resource.data.orgId) && (isOrgOwner(resource.data.orgId) || isPlatformAdmin());
+    }
+
+    // -------------------------------------------------------------------------
+    // Outlets Collection (DOM-03)
+    // -------------------------------------------------------------------------
+    match /outlets/{outletId} {
+      allow read: if isAuthenticated() && isTenantMember(resource.data.orgId);
+      allow create: if isAuthenticated() && isTenantMember(request.resource.data.orgId) && (isOrgOwner(request.resource.data.orgId) || hasRole('BrandAdmin') || isPlatformAdmin());
+      allow update, delete: if isAuthenticated() && isTenantMember(resource.data.orgId) && (isOrgOwner(resource.data.orgId) || hasRole('BrandAdmin') || isPlatformAdmin());
+    }
+
+    // -------------------------------------------------------------------------
+    // Customer Profiles Collection (DOM-01, DOM-14)
+    // -------------------------------------------------------------------------
+    match /customers/{customerId} {
+      allow read: if isCustomerOwner(customerId) || isPlatformAdmin();
+      allow create: if isCustomerOwner(customerId);
+      allow update: if isCustomerOwner(customerId);
+      allow delete: if isPlatformAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // Menu Items Collection (DOM-04)
+    // -------------------------------------------------------------------------
+    match /menu_items/{itemId} {
+      allow read: if isAuthenticated() && isTenantMember(resource.data.orgId);
+      allow create: if isAuthenticated() && isTenantMember(request.resource.data.orgId) && isStaffMember(request.resource.data.orgId);
+      allow update, delete: if isAuthenticated() && isTenantMember(resource.data.orgId) && isStaffMember(resource.data.orgId);
+    }
+
+    // -------------------------------------------------------------------------
+    // Orders Collection (DOM-06)
+    // -------------------------------------------------------------------------
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        isTenantMember(resource.data.orgId) ||
+        (resource.data.customerId == request.auth.uid)
+      );
+      allow create: if isAuthenticated() && (
+        isTenantMember(request.resource.data.orgId) ||
+        (request.resource.data.customerId == request.auth.uid)
+      );
+      allow update: if isAuthenticated() && (
+        isTenantMember(resource.data.orgId) && isStaffMember(resource.data.orgId)
+      );
+      allow delete: if isPlatformAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // Audit Logs Collection (Step 6E: Append-Only Immutable Security Audit Trail)
+    // -------------------------------------------------------------------------
+    match /audit_logs/{logId} {
+      allow read: if isAuthenticated() && (isPlatformAdmin() || (hasRole('Accountant') && isTenantMember(resource.data.orgId)) || isOrgOwner(resource.data.orgId));
+      allow create: if isAuthenticated() && isStaffMember(request.resource.data.orgId);
+      allow update, delete: if false; // Strictly Immutable
+    }
+
+    // -------------------------------------------------------------------------
+    // Idempotency Keys Collection (ADR-025, ADR-038)
+    // -------------------------------------------------------------------------
+    match /idempotency_keys/{keyId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
