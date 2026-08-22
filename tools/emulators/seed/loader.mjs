@@ -89,7 +89,10 @@ export async function writeFirestoreDoc(config, collection, docId, data) {
 
   const res = await fetch(url, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer owner',
+    },
     body,
   });
 
@@ -107,37 +110,41 @@ export async function writeFirestoreDoc(config, collection, docId, data) {
  * @param {typeof USERS_FIXTURE[0]} user
  */
 export async function createAuthUser(config, user) {
-  // 1. Create User Identity
-  const signUpUrl = `http://${config.authHost}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-api-key`;
-  const signUpRes = await fetch(signUpUrl, {
+  // 1. Create User Identity in Auth Emulator with fixed localId using Bearer owner
+  const createUrl = `http://${config.authHost}/identitytoolkit.googleapis.com/v1/projects/${config.projectId}/accounts`;
+  const createRes = await fetch(createUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer owner',
+    },
     body: JSON.stringify({
       localId: user.uid,
       email: user.email,
       password: user.password,
       displayName: user.displayName,
-      returnSecureToken: true,
     }),
   });
 
-  if (!signUpRes.ok) {
-    const errJson = await signUpRes.json().catch(() => ({}));
+  if (!createRes.ok) {
+    const errJson = await createRes.json().catch(() => ({}));
     const message = errJson?.error?.message || '';
-    // If user already exists (EMAIL_EXISTS), update is acceptable
-    if (!message.includes('EMAIL_EXISTS')) {
+    if (!message.includes('EMAIL_EXISTS') && !message.includes('DUPLICATE_LOCAL_ID')) {
       throw new Error(
-        `Auth create failed for ${user.email} (HTTP ${signUpRes.status}): ${message}`,
+        `Auth create failed for ${user.email} (HTTP ${createRes.status}): ${message}`,
       );
     }
   }
 
-  // 2. Set Custom Token Claims if specified
+  // 2. Set Custom Token Claims if specified using Bearer owner
   if (user.customClaims && Object.keys(user.customClaims).length > 0) {
     const updateUrl = `http://${config.authHost}/identitytoolkit.googleapis.com/v1/accounts:update?key=fake-api-key`;
     const updateRes = await fetch(updateUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer owner',
+      },
       body: JSON.stringify({
         localId: user.uid,
         customAttributes: JSON.stringify(user.customClaims),

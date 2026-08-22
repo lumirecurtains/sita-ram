@@ -29,7 +29,10 @@ export async function resetEmulators(config = SEED_CONFIG) {
   // 1. Purge Local Firestore Emulator Database
   const firestoreUrl = `http://${config.firestoreHost}/emulator/v1/projects/${config.projectId}/databases/(default)/documents`;
   try {
-    const res = await fetch(firestoreUrl, { method: 'DELETE' });
+    const res = await fetch(firestoreUrl, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer owner' },
+    });
     if (res.ok || res.status === 200 || res.status === 204) {
       results.firestoreReset = true;
     } else {
@@ -43,7 +46,10 @@ export async function resetEmulators(config = SEED_CONFIG) {
   // 2. Purge Local Auth Emulator Accounts
   const authUrl = `http://${config.authHost}/emulator/v1/projects/${config.projectId}/accounts`;
   try {
-    const res = await fetch(authUrl, { method: 'DELETE' });
+    const res = await fetch(authUrl, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer owner' },
+    });
     if (res.ok || res.status === 200 || res.status === 204) {
       results.authReset = true;
     } else {
