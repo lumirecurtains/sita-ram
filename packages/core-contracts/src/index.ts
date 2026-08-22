@@ -7,6 +7,8 @@
  * Zero External Frameworks (only pure Zod runtime validation).
  */
 
+export const CORE_CONTRACTS_VERSION = '0.1.0';
+
 export * from './identifiers/index.js';
 export * from './enums/index.js';
 export * from './money/index.js';

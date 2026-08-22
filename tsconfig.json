@@ -8,6 +8,18 @@
   "references": [
     {
       "path": "./packages/core-contracts"
+    },
+    {
+      "path": "./packages/domain-core"
+    },
+    {
+      "path": "./packages/infrastructure"
+    },
+    {
+      "path": "./packages/security-middleware"
+    },
+    {
+      "path": "./packages/observability"
     }
   ]
 }
