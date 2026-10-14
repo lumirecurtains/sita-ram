@@ -148,4 +148,190 @@ describe('Behavioral Firestore Security Rules Evaluation Engine (M0-FIX-01)', ()
       await assertFails(adminDb.doc('audit_logs/aud_01').delete());
     });
   });
+
+  describe('7. Idempotency Keys Multi-Tenant Security & Immutability (M0-FIX-03)', () => {
+    describe('7.1 Authentication Boundary Enforcement', () => {
+      it('RUT-IDEM-01: unauthenticated user cannot read idempotency keys', async () => {
+        const unauthedDb = TEST_ACTORS.unauthenticated(testEnv).firestore();
+        await assertFails(unauthedDb.doc('idempotency_keys/idem_live_01').get());
+      });
+
+      it('RUT-IDEM-02: unauthenticated user cannot create idempotency keys', async () => {
+        const unauthedDb = TEST_ACTORS.unauthenticated(testEnv).firestore();
+        await assertFails(
+          unauthedDb.doc('idempotency_keys/idem_new_unauth').set({
+            orgId: TENANT_A_ORG_ID,
+            userId: 'user_mgr_bareilly_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+    });
+
+    describe('7.2 Same-Tenant Staff Authorization', () => {
+      it('RUT-IDEM-03: Tenant A OutletManager can read idempotency key in own tenant', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertSucceeds(managerDb.doc('idempotency_keys/idem_live_01').get());
+      });
+
+      it('RUT-IDEM-04: Tenant A OutletManager can create idempotency key in own tenant', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertSucceeds(
+          managerDb.doc('idempotency_keys/idem_mgr_new_01').set({
+            orgId: TENANT_A_ORG_ID,
+            userId: 'user_mgr_bareilly_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+            status: 'PENDING',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-05: Tenant A OrgOwner can read idempotency key in own tenant', async () => {
+        const ownerDb = TEST_ACTORS.tenantAOwner(testEnv).firestore();
+        await assertSucceeds(ownerDb.doc('idempotency_keys/idem_live_01').get());
+      });
+    });
+
+    describe('7.3 Cross-Tenant Isolation Enforcement', () => {
+      it('RUT-IDEM-06: Tenant B OutletManager cannot read Tenant A idempotency key', async () => {
+        const tenantBDb = TEST_ACTORS.tenantBManager(testEnv).firestore();
+        await assertFails(tenantBDb.doc('idempotency_keys/idem_live_01').get());
+      });
+
+      it('RUT-IDEM-07: Tenant B OutletManager cannot create idempotency key targeting Tenant A', async () => {
+        const tenantBDb = TEST_ACTORS.tenantBManager(testEnv).firestore();
+        await assertFails(
+          tenantBDb.doc('idempotency_keys/idem_spoof_01').set({
+            orgId: TENANT_A_ORG_ID,
+            userId: 'user_mithai_mgr_02',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-08: Tenant B OutletManager cannot update Tenant A idempotency key', async () => {
+        const tenantBDb = TEST_ACTORS.tenantBManager(testEnv).firestore();
+        await assertFails(
+          tenantBDb.doc('idempotency_keys/idem_live_01').update({
+            status: 'CANCELLED',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-09: Tenant B OutletManager cannot delete Tenant A idempotency key', async () => {
+        const tenantBDb = TEST_ACTORS.tenantBManager(testEnv).firestore();
+        await assertFails(tenantBDb.doc('idempotency_keys/idem_live_01').delete());
+      });
+    });
+
+    describe('7.4 Customer Ownership & Privacy Boundaries', () => {
+      it('RUT-IDEM-10: customer can read own idempotency key', async () => {
+        const customerDb = TEST_ACTORS.customerAnanya(testEnv).firestore();
+        await assertSucceeds(customerDb.doc('idempotency_keys/idem_cust_ananya_01').get());
+      });
+
+      it('RUT-IDEM-11: customer can create idempotency key bound to own customerId', async () => {
+        const customerDb = TEST_ACTORS.customerAnanya(testEnv).firestore();
+        await assertSucceeds(
+          customerDb.doc('idempotency_keys/idem_cust_new_01').set({
+            orgId: TENANT_A_ORG_ID,
+            customerId: 'cust_ananya_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-12: customer cannot read another customer idempotency key', async () => {
+        const rahulDb = TEST_ACTORS.customerRahul(testEnv).firestore();
+        await assertFails(rahulDb.doc('idempotency_keys/idem_cust_ananya_01').get());
+      });
+
+      it('RUT-IDEM-13: customer cannot read staff-created POS idempotency key', async () => {
+        const customerDb = TEST_ACTORS.customerAnanya(testEnv).firestore();
+        await assertFails(customerDb.doc('idempotency_keys/idem_live_01').get());
+      });
+    });
+
+    describe('7.5 Anti-Spoofing & Field Integrity', () => {
+      it('RUT-IDEM-14: staff cannot forge another user userId', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertFails(
+          managerDb.doc('idempotency_keys/idem_forged_user').set({
+            orgId: TENANT_A_ORG_ID,
+            userId: 'user_org_owner_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-15: customer cannot forge another customer customerId', async () => {
+        const customerDb = TEST_ACTORS.customerAnanya(testEnv).firestore();
+        await assertFails(
+          customerDb.doc('idempotency_keys/idem_forged_cust').set({
+            orgId: TENANT_A_ORG_ID,
+            customerId: 'cust_rahul_02',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+    });
+
+    describe('7.6 Client Immutability & Replay Overwrite Resistance', () => {
+      it('RUT-IDEM-16: authorized staff cannot update existing idempotency key', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertFails(
+          managerDb.doc('idempotency_keys/idem_live_01').update({
+            status: 'COMPLETED',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-17: authorized owner cannot delete existing idempotency key', async () => {
+        const ownerDb = TEST_ACTORS.tenantAOwner(testEnv).firestore();
+        await assertFails(ownerDb.doc('idempotency_keys/idem_live_01').delete());
+      });
+
+      it('RUT-IDEM-18: authorized staff cannot overwrite existing idempotency key via set', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertFails(
+          managerDb.doc('idempotency_keys/idem_live_01').set({
+            orgId: TENANT_A_ORG_ID,
+            userId: 'user_mgr_bareilly_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+    });
+
+    describe('7.7 PlatformAdmin Authority & Scope Enforcement', () => {
+      it('RUT-IDEM-19: PlatformAdmin cannot read idempotency keys (denied by default under DECISION-IDEM-PLATFORMADMIN-READ)', async () => {
+        const adminDb = TEST_ACTORS.platformAdmin(testEnv).firestore();
+        await assertFails(adminDb.doc('idempotency_keys/idem_live_01').get());
+      });
+
+      it('RUT-IDEM-20: PlatformAdmin cannot delete idempotency keys (strictly immutable)', async () => {
+        const adminDb = TEST_ACTORS.platformAdmin(testEnv).firestore();
+        await assertFails(adminDb.doc('idempotency_keys/idem_live_01').delete());
+      });
+    });
+
+    describe('7.8 Schema Completeness & Query Isolation', () => {
+      it('RUT-IDEM-21: staff cannot create idempotency key missing required orgId', async () => {
+        const managerDb = TEST_ACTORS.tenantAManager(testEnv).firestore();
+        await assertFails(
+          managerDb.doc('idempotency_keys/idem_missing_org').set({
+            userId: 'user_mgr_bareilly_01',
+            createdAtIso: '2026-10-14T10:00:00Z',
+          }),
+        );
+      });
+
+      it('RUT-IDEM-22: Tenant B OutletManager cannot query Tenant A idempotency keys', async () => {
+        const tenantBDb = TEST_ACTORS.tenantBManager(testEnv).firestore();
+        await assertFails(
+          tenantBDb.collection('idempotency_keys').where('orgId', '==', TENANT_A_ORG_ID).get(),
+        );
+      });
+    });
+  });
 });

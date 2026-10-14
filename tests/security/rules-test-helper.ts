@@ -144,5 +144,22 @@ export async function seedBaselineFixtures(env: RulesTestEnvironment): Promise<v
       actorUserId: 'user_plat_admin_01',
       timestampIso: '2026-08-20T10:00:00.000Z',
     });
+
+    // 5. Idempotency Keys (Baseline Fixtures for M0-FIX-03)
+    await db.doc('idempotency_keys/idem_live_01').set({
+      id: 'idem_live_01',
+      orgId: TENANT_A_ORG_ID,
+      userId: 'user_mgr_bareilly_01',
+      createdAtIso: '2026-08-20T10:00:00.000Z',
+      status: 'COMPLETED',
+    });
+
+    await db.doc('idempotency_keys/idem_cust_ananya_01').set({
+      id: 'idem_cust_ananya_01',
+      orgId: TENANT_A_ORG_ID,
+      customerId: 'cust_ananya_01',
+      createdAtIso: '2026-08-20T10:00:00.000Z',
+      status: 'COMPLETED',
+    });
   });
 }
