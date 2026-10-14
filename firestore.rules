@@ -145,7 +145,47 @@ service cloud.firestore {
     // Idempotency Keys Collection (ADR-025, ADR-038)
     // -------------------------------------------------------------------------
     match /idempotency_keys/{keyId} {
-      allow read, write: if isAuthenticated();
+      // Read Authorization:
+      // - PlatformAdmin: DENIED (DECISION-IDEM-PLATFORMADMIN-READ)
+      // - Tenant staff: can read keys belonging to their organization
+      // - Customers: can read ONLY keys matching their own authenticated customerId
+      allow get: if isAuthenticated() && (
+        (isTenantMember(resource.data.orgId) && isStaffMember(resource.data.orgId)) ||
+        (resource.data.customerId == request.auth.uid)
+      );
+
+      allow list: if isAuthenticated() && (
+        (isTenantMember(resource.data.orgId) && isStaffMember(resource.data.orgId)) ||
+        (resource.data.customerId == request.auth.uid)
+      );
+
+      // Create Authorization:
+      // - Mandatory fields: orgId and createdAtIso must be strings
+      // - Staff path: caller must be member and staff of target orgId, bind userId == request.auth.uid, and NOT set customerId
+      // - Customer path: caller must bind customerId == request.auth.uid, and NOT set userId
+      allow create: if isAuthenticated() &&
+        request.resource.data.orgId is string &&
+        request.resource.data.createdAtIso is string &&
+        (
+          // 1. Staff Path (Field Exclusivity Enforced):
+          (
+            request.resource.data.userId == request.auth.uid &&
+            !('customerId' in request.resource.data) &&
+            isTenantMember(request.resource.data.orgId) &&
+            isStaffMember(request.resource.data.orgId)
+          ) ||
+          // 2. Customer Path (Field Exclusivity Enforced):
+          (
+            request.resource.data.customerId == request.auth.uid &&
+            !('userId' in request.resource.data)
+          )
+        );
+
+      // Client Updates and Deletions are Strictly Prohibited (Client Immutability):
+      // Prevents replay attacks, cache poisoning, and transaction hijacking.
+      // Trusted backend services (Admin SDK / Cloud Functions) bypass this restriction.
+      allow update, delete: if false;
     }
+
   }
 }
