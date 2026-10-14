@@ -7,7 +7,7 @@
 **Project**: Sita Ram Restaurant Operating System  
 **Repository**: `C:\Users\Lex-leo\Sita-Ram`  
 **Git Baseline Commit (HEAD)**: `b1eaeefd2f0af679355fe7cbfa5b78cf15aa3020`  
-**Authority**: Project Owner / Chief Technology Officer (Explicit Stage 7 Approval, 2026-10-14)  
+**Authority**: Project Owner / Chief Technology Officer (Explicit Stage 7 Approval, 2026-10-14)
 
 ---
 
@@ -25,12 +25,12 @@ On 2026-10-14, the Project Owner formally convened the Stage 7 Human Governance 
 
 In accordance with strict governance audit standards, the identity and provenance of the ratified specifications are explicitly established:
 
-| Artifact / Specification | Nature & Persistence Medium | Authoritative Source Reference | Ratification Status |
-| :--- | :--- | :--- | :--- |
-| **Sita Ram Master Delivery Lifecycle Specification (Lifecycle Stages 0–7)** | Conversational & Transcript Governance Record (Consolidated across Workflows 3A–3R) | Initiated in Workflow 3A (`transcript_full.jsonl` Line 2377, Step 2395); hardened across Workflows 3B–3R; closed in *Sita Ram — Final Governance Closure Review* (`transcript_full.jsonl` Line 2854, Step 2854) | **FORMALLY LOCKED** |
-| **HRD Register Reconciliation & Disambiguation Addendum** | Physical Repository Artifact | [`docs/governance/addenda/ADDENDUM-GOV-20261013-01.md`](file:///C:/Users/Lex-leo/Sita-Ram/docs/governance/addenda/ADDENDUM-GOV-20261013-01.md) (Created 2026-10-13, Verified 2026-10-14) | **RATIFIED** |
+| Artifact / Specification                                                    | Nature & Persistence Medium                                                         | Authoritative Source Reference                                                                                                                                                                                  | Ratification Status |
+| :-------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------ |
+| **Sita Ram Master Delivery Lifecycle Specification (Lifecycle Stages 0–7)** | Conversational & Transcript Governance Record (Consolidated across Workflows 3A–3R) | Initiated in Workflow 3A (`transcript_full.jsonl` Line 2377, Step 2395); hardened across Workflows 3B–3R; closed in _Sita Ram — Final Governance Closure Review_ (`transcript_full.jsonl` Line 2854, Step 2854) | **FORMALLY LOCKED** |
+| **HRD Register Reconciliation & Disambiguation Addendum**                   | Physical Repository Artifact                                                        | [`docs/governance/addenda/ADDENDUM-GOV-20261013-01.md`](file:///C:/Users/Lex-leo/Sita-Ram/docs/governance/addenda/ADDENDUM-GOV-20261013-01.md) (Created 2026-10-13, Verified 2026-10-14)                        | **RATIFIED**        |
 
-*Provenance Note*: The Master Delivery Lifecycle Specification exists as a rigorously verified conversational and ledger governance record across Workflows 3A through 3R. No claim is made that a physical specification markdown file existed in the repository prior to this gate. In accordance with Policy Constraint PC-12 (Audit Trail Immutability), the creation-time header `Status: CREATED — PENDING INDEPENDENT REVIEW` in `ADDENDUM-GOV-20261013-01.md` is preserved as historical creation evidence; its formal ratification is enacted via this Stage 7 decision record.
+_Provenance Note_: The Master Delivery Lifecycle Specification exists as a rigorously verified conversational and ledger governance record across Workflows 3A through 3R. No claim is made that a physical specification markdown file existed in the repository prior to this gate. In accordance with Policy Constraint PC-12 (Audit Trail Immutability), the creation-time header `Status: CREATED — PENDING INDEPENDENT REVIEW` in `ADDENDUM-GOV-20261013-01.md` is preserved as historical creation evidence; its formal ratification is enacted via this Stage 7 decision record.
 
 ---
 
@@ -48,7 +48,7 @@ The formal lifecycle lock approved by this Stage 7 gate applies strictly to:
 4. **Taxonomic Separation**:
    Strict maintenance of the distinction between Delivery Lifecycle Stages 0–7 (engineering workflow) and Product Roadmap Phases 0–7 (restaurant business capabilities).
 
-*Exclusion*: This lock binds the engineering delivery lifecycle, verification protocol, and governance gates. It does **not** freeze individual product architecture choices, data models, or implementation code.
+_Exclusion_: This lock binds the engineering delivery lifecycle, verification protocol, and governance gates. It does **not** freeze individual product architecture choices, data models, or implementation code.
 
 ---
 
@@ -57,26 +57,29 @@ The formal lifecycle lock approved by this Stage 7 gate applies strictly to:
 Ratification of this gate confirms the status of all decision records as follows:
 
 ### 4.1 Canonical Human Decision Records (Established in Workflow 3B Part 3)
+
 1. **`HRD-01` (Remote Branch Protection on `origin/main`)**: **OPEN / UNRESOLVED**  
-   *Decision Required*: Configure server-side branch protection requiring pull request review and status checks before merging to `main`.
+   _Decision Required_: Configure server-side branch protection requiring pull request review and status checks before merging to `main`.
 2. **`HRD-02` (Gate Reviewer Delegation Authority)**: **OPEN / UNRESOLVED**  
-   *Decision Required*: Establish formal delegation policy and designate authorized sign-off personnel for Stage 7 gates.
+   _Decision Required_: Establish formal delegation policy and designate authorized sign-off personnel for Stage 7 gates.
 3. **`HRD-03` (CERT-In 6-Hour Incident Notification Applicability)**: **OPEN / UNRESOLVED**  
-   *Decision Required*: Secure qualified legal opinion on statutory applicability of CERT-In cyber incident reporting obligations.
+   _Decision Required_: Secure qualified legal opinion on statutory applicability of CERT-In cyber incident reporting obligations.
 4. **`HRD-04` (Annotated Git Release Tagging Convention)**: **OPEN / UNRESOLVED**  
-   *Decision Required*: Adopt standard Git tag format (e.g. `vX.Y.Z-stageN`) and milestone boundary tagging rules.
+   _Decision Required_: Adopt standard Git tag format (e.g. `vX.Y.Z-stageN`) and milestone boundary tagging rules.
 5. **`HRD-05` (Phase 3+ Payment Endpoint Deployment Architecture)**: **OPEN / UNRESOLVED**  
-   *Decision Required*: Finalize compute architecture for payment processing to enable canary/rollout deployment controls.
+   _Decision Required_: Finalize compute architecture for payment processing to enable canary/rollout deployment controls.
 
 ### 4.2 Emerging Architectural Decisions (Cataloged in Addendum 01)
+
 1. **`ARCH-DEC-01` (Acceptance of Residual Filesystem Race Limitations R-01–R-09)**: **OPEN / UNRESOLVED**
 2. **`ARCH-DEC-02` (Production Hosting and Runtime Architecture)**: **OPEN / UNRESOLVED**
 3. **`ARCH-DEC-03` (Secrets Management and KMS Architecture)**: **OPEN / UNRESOLVED**
 4. **`ARCH-DEC-04` (Long-Term Transactional Database Selection)**: **OPEN / UNRESOLVED**
 
 ### 4.3 Work Authorization Decision
+
 1. **`WORK-AUTH-01` (Work Authorization for Phase 0 Security Hotfixes)**: **OPEN / UNRESOLVED**  
-   *Status*: **STRICTLY UNAUTHORIZED**.
+   _Status_: **STRICTLY UNAUTHORIZED**.
 
 ---
 
