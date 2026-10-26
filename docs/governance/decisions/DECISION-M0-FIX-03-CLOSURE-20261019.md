@@ -372,7 +372,11 @@ resolve HRD-01.
 | **Project Owner / CTO** | **APPROVED** |   **2026-10-19**   |
 
 _Authorization statement_: The Project Owner explicitly approved the
-content of this record and authorized its staging, committing, and
-pushing to `main` as a single dedicated governance commit on
-2026-10-19. No other file was authorized for staging or modification.
-The four untracked files documented in §6 remain untouched.
+content of this closure record on 2026-10-19. In compliance with
+repository branch protection requiring pull requests for changes to
+`main`, delivery proceeded via dedicated governance branch
+`docs/governance-closure-m0-fix-03` and Pull Request #2. The separate
+merge-gate decision to merge PR #2 into `main` has not yet been
+granted and requires explicit owner authorization. No other file was
+authorized for staging or modification. The untracked files documented
+in §6 remain untouched.
